@@ -103,12 +103,25 @@ def load_hydro_data(hydro_var_name,dataset_name,time_idx,path='../datasets/hydro
                         'month':np.asarray(X.variables['time'][:][1,:]).astype(int),
                         'day':15})
         time_X=pd.to_datetime(db)
+    if version==2:
+        year=[d[3:] for d in np.asarray(X.variables['time'])]
+        month=[d[:2] for d in np.asarray(X.variables['time'])]
+
+        db=pd.DataFrame({'year':np.asarray(year).astype(int),
+                        'month':np.asarray(month).astype(int),
+                        'day':15})
+        time_X=pd.to_datetime(db)
 
     # dataframe of all grid points
     if version==1:
         lat=np.asarray(X.variables['Lat'][:][0])
         long=np.asarray(X.variables['Long'][:][0])
         df=pd.DataFrame({'x':long,'y':lat})
+    if version==2:
+        lat=np.asarray(X.variables['Lat'])
+        long=np.asarray(X.variables['Long'])
+        (lat_flat,long_flat)=np.meshgrid(lat,long)
+        df=pd.DataFrame({'x':long_flat.flatten(),'y':lat_flat.flatten()})
 
     spatial_grid=geopandas.GeoDataFrame(df, geometry=geopandas.points_from_xy(df.x, df.y))
 
@@ -137,6 +150,19 @@ def hydrological_variables_grid(hydro_var,time_X,hydro_var_name,spatial_grid,tim
         # select hydrological variable at overlapping time points
         hydro_grid=np.asarray(hydro_var)[ind_time,:]
         hydro_grid=pd.DataFrame(hydro_grid.T,index=db.index,columns=columns)
+
+    if version==2:
+        # hydro_var is of shape (nb_month x latitude points x longitude points
+        if fill_nan:
+            # replace all missing values (=fill_value) by nans
+            fill_value=-9999
+            hydro_var=np.where(hydro_var==fill_value,np.nan,hydro_var)
+        Nx=hydro_var.shape[2]
+        Ny=hydro_var.shape[1]
+        Nt=ind_time.shape[0]
+        hydro_grid=hydro_var[ind_time].T.reshape(Nx*Ny,Nt)
+        hydro_grid=pd.DataFrame(hydro_grid,index=db.index,columns=columns)
+
 
     # join coordinates and hydrological variables
     db=db.join(hydro_grid)
@@ -185,27 +211,92 @@ def find_coordinates_inside_basin(my_basin,spatial_grid,basins,plot=False):
     return final_selection
 
 
-def my_fillna(hydro_basin,hydro_var_name,time_idx,method='cubic'):
+def my_fillna_temporal(hydro_basin,hydro_var_name,time_idx,method='cubic'):
     ''' reconstruct missing values in hydro_basin with interpolation '''
     columns=['{} {}'.format(hydro_var_name,d.date()) for d in time_idx]
 
     # cubic interpolation can be performed only on dates
     df=pd.DataFrame(hydro_basin[columns].values,columns=time_idx)
-    df=df.interpolate(axis=1,method='cubic')
+    try:
+        df=df.interpolate(axis=1,method='cubic')
 
-    # we change columns and index of df
-    df=pd.DataFrame(df.values,columns=columns,index=hydro_basin.index)
-    hydro_basin[columns]=df
-    return hydro_basin
+        # we change columns and index of df
+        df=pd.DataFrame(df.values,columns=columns,index=hydro_basin.index)
+        hydro_basin[columns]=df
+        return hydro_basin,True
+    # if there are too many missing values, interpolation cannot be performed
+    except:
+        return hydro_basin,False
+
+
+
+def my_fillna_spatial(hydro_basin,hydro_var_name,time_idx,dataset_name,version=1,threshold=5,path='../datasets/hydrology'):
+    columns=['{} {}'.format(hydro_var_name,d.date()) for d in time_idx]
+    missing_points=hydro_basin.loc[np.isnan(hydro_basin[columns]).sum(axis=1)>0] #grid points with at least 1 missing value non recovered temporally
+    if missing_points.shape[0]==0: # there is no missing point
+        return hydro_basin,True
+
+    if missing_points.shape[0]<hydro_basin.shape[0]*threshold/100: # there are not too many missing points
+        for idx in missing_points.index:
+            x=missing_points.loc[idx,'x']
+            y=missing_points.loc[idx,'y']
+            (res_lat,res_long)=compute_spatial_resolution(hydro_var_name,dataset_name,version=version)
+
+            # if one point is not is the basin, the dataframe returned has 0 row
+            under=hydro_basin.loc[(hydro_basin['x']==x)&(hydro_basin['y']==y-res_lat)]
+            # remove the row if it is unknow
+            if under.shape[0]>0:
+                if np.isin(under.index[0],missing_points.index):
+                    under=under.drop(under.index[0])
+
+            above=hydro_basin.loc[(hydro_basin['x']==x)&(hydro_basin['y']==y+res_lat)]
+            if above.shape[0]>0:
+                if np.isin(above.index[0],missing_points.index):
+                    above=above.drop(above.index[0])
+
+            left=hydro_basin.loc[(hydro_basin['x']==x-res_long)&(hydro_basin['y']==y)]
+            if left.shape[0]>0:
+                if np.isin(left.index[0],missing_points.index):
+                    left=left.drop(left.index[0])
+
+            right=hydro_basin.loc[(hydro_basin['x']==x+res_long)&(hydro_basin['y']==y)]
+            if right.shape[0]>0:
+                if np.isin(right.index[0],missing_points.index):
+                    right=right.drop(right.index[0])
+
+            if under.shape[0]+above.shape[0]+left.shape[0]+right.shape[0]==4: # all neighbours are present
+                new=(under[columns].values+above[columns].values+left[columns].values+right[columns].values)/4
+                hydro_basin.loc[idx,columns]=new.flatten()
+
+            if under.shape[0]+above.shape[0]==2: # vertical neighbours are present
+                new=(under[columns].values+above[columns].values)/2
+                hydro_basin.loc[idx,columns]=new.flatten()
+
+            if left.shape[0]+right.shape[0]==2: # horizontal neighbours are present
+                new=(left[columns].values+right[columns].values)/2
+                hydro_basin.loc[idx,columns]=new.flatten()
+
+    missing_points=hydro_basin.loc[np.isnan(hydro_basin[columns]).sum(axis=1)>0]
+    return hydro_basin,(missing_points.shape[0]==0)
+
+
+def my_fillna(hydro_basin,hydro_var_name,time_idx,dataset_name,version=1,threshold=5,path='../datasets/hydrology',method='cubic'):
+    hydro_basin,temporal_filling=my_fillna_temporal(hydro_basin,hydro_var_name,time_idx,method=method)
+    hydro_basin,spatial_filling=my_fillna_spatial(hydro_basin,hydro_var_name,time_idx,dataset_name,version=version,threshold=threshold,path=path)
+    return hydro_basin,temporal_filling&spatial_filling
 
 
 
 ## SPATIAL AVERAGING
 def compute_spatial_resolution(hydro_var_name,dataset_name,version=1,path='../datasets/hydrology'):
     X=netCDF4.Dataset("{}/{}_{}.nc".format(path,hydro_var_name,dataset_name))
-    lat=np.asarray(X.variables['Lat'][:][0])
-    long=np.asarray(X.variables['Long'][:][0])
-    res_lat=np.abs(np.unique(lat[0])-np.unique(lat[1]))
+    if version==1:
+        lat=np.asarray(X.variables['Lat'][:][0])
+        long=np.asarray(X.variables['Long'][:][0])
+    if version==2:
+        lat=np.asarray(X.variables['Lat'])
+        long=np.asarray(X.variables['Long'])
+    res_lat=np.abs(np.unique(lat)[0]-np.unique(lat)[1])
     res_long=np.abs(np.unique(long)[1]-np.unique(long)[0])
 
     return (res_lat,res_long)
