@@ -45,3 +45,9 @@ G=6.674e-11 # (m^3 kg^-1 s^-2) Gravitational constant
 M=5.9722e24 # (kg) Earth mass
 a=6.378e6 # (m) semi major axis of the ellipse describing the Earth ~ Earth radius
 rho_av=3*M/(4*np.pi*a**3) # (kg m^-3) average density of the Earth
+
+
+version_data={'GLDAS21_NOAH36':2,'GLDAS21_CLSM25':2,'GLDAS21_VIC412':2,'GLDAS21':2,'MERRA2':2,
+'GRACE_JPL':1,'CPC':1,'TRMM':1,'GLDAS':1,'SEB':1}
+
+
