@@ -47,7 +47,11 @@ a=6.378e6 # (m) semi major axis of the ellipse describing the Earth ~ Earth radi
 rho_av=3*M/(4*np.pi*a**3) # (kg m^-3) average density of the Earth
 
 
-version_data={'GLDAS21_NOAH36':2,'GLDAS21_CLSM25':2,'GLDAS21_VIC412':2,'GLDAS21':2,'MERRA2':2,
-'GRACE_JPL':1,'CPC':1,'TRMM':1,'GLDAS':1,'SEB':1}
+version_data={'GLDAS21_NOAH36':2,'GLDAS21_CLSM25':2,'GLDAS21_VIC412':2,'GLDAS21':2,'MERRA2':2,'SSEBop':2,'GRACE_CSR':2,'GRUN':2,
+'GRACE_JPL':1,'CPC':1,'TRMM':1,'GLDAS':1,'SEB':1,'MSWEP':1}
+
+dict_fill_value={'GLDAS21_NOAH36':-9999,'GLDAS21_CLSM25':-9999,'GLDAS21_VIC412':-9999,
+'GLDAS21':-9999,'MERRA2':-9999,'SSEBop':-9999,'GRUN':-9999,
+'GRACE_JPL':-9999,'GRACE_CSR':-9999,'CPC':-9999,'TRMM':-9999,'GLDAS':0,'SEB':0,'MSWEP':-9999}
 
 

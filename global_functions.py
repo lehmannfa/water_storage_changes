@@ -93,7 +93,7 @@ def normalize(X,a=-1,b=1):
 
 
 ## HYDROLOGICAL VARIABLES OVER GRID
-def load_hydro_data(hydro_var_name,dataset_name,time_idx,path='../datasets/hydrology',version=1,fill_nan=True):
+def load_hydro_data(hydro_var_name,dataset_name,time_idx,fill_value=-9999,path='../datasets/hydrology',version=1,fill_nan=True):
     # load dataset
     X=netCDF4.Dataset("{}/{}_{}.nc".format(path,hydro_var_name,dataset_name))
 
@@ -127,40 +127,45 @@ def load_hydro_data(hydro_var_name,dataset_name,time_idx,path='../datasets/hydro
 
     # dataframe of each variable at each month over all grid point
     hydro_var=np.asarray(X.variables['{}_mm'.format(hydro_var_name)])
-    X_grid=hydrological_variables_grid(hydro_var,time_X,hydro_var_name,spatial_grid,time_idx, version=version,fill_nan=fill_nan)
+    X_grid=hydrological_variables_grid(hydro_var,time_X,hydro_var_name,spatial_grid,time_idx, fill_value=fill_value,version=version,fill_nan=fill_nan)
 
     return spatial_grid, X_grid, time_X
 
 
 
-def hydrological_variables_grid(hydro_var,time_X,hydro_var_name,spatial_grid,time_idx,version=1,fill_nan=True):
+def hydrological_variables_grid(hydro_var,time_X,hydro_var_name,spatial_grid,time_idx,fill_value,version=1,fill_nan=True):
     ''' returns a DataFrame with as many rows as the number of grid points
     in each column, the hydrological variable given for each month of time '''
     ind_time=np.where(time_X.isin(time_idx))[0]
 
-    columns=['{} {}'.format(hydro_var_name,d.date()) for d in time_idx]
+    #columns=['{} {}'.format(hydro_var_name,d.date()) for d in time_idx]
+    columns=['{} {}'.format(hydro_var_name,d.date()) for d in time_X]
     db=spatial_grid.copy()
 
     if version==1:
         if fill_nan:
             # replace all missing values (=fill_value) by nans
-            fill_value=0.0
             hydro_var=np.where(hydro_var==fill_value,np.nan,hydro_var)
 
         # select hydrological variable at overlapping time points
-        hydro_grid=np.asarray(hydro_var)[ind_time,:]
+        #hydro_grid=np.asarray(hydro_var)[ind_time,:]
+        hydro_grid=np.asarray(hydro_var)
         hydro_grid=pd.DataFrame(hydro_grid.T,index=db.index,columns=columns)
 
     if version==2:
         # hydro_var is of shape (nb_month x latitude points x longitude points
         if fill_nan:
             # replace all missing values (=fill_value) by nans
-            fill_value=-9999
             hydro_var=np.where(hydro_var==fill_value,np.nan,hydro_var)
         Nx=hydro_var.shape[2]
         Ny=hydro_var.shape[1]
         Nt=ind_time.shape[0]
-        hydro_grid=hydro_var[ind_time].T.reshape(Nx*Ny,Nt)
+
+        #hydro_grid=hydro_var[ind_time].T.reshape(Nx*Ny,Nt)
+
+        Nt=time_X.shape[0]
+        hydro_grid=hydro_var.T.reshape(Nx*Ny,Nt)
+
         hydro_grid=pd.DataFrame(hydro_grid,index=db.index,columns=columns)
 
 
@@ -181,6 +186,18 @@ def load_basins_data(approximate=True,path='../datasets/basins'):
     basins.crs = 'epsg:4326'
 
     return basins
+
+
+
+def test_same_spatial_grid(spatial_grid_ref,spatial_grid_test):
+    ''' Test if two spatial grids are the same to avoid unnecessary computations'''
+    if spatial_grid_ref.shape!=spatial_grid_test.shape:
+        return False
+    if (spatial_grid_ref['x']!=spatial_grid_test['x']).any():
+        return False
+    if (spatial_grid_ref['y']!=spatial_grid_test['y']).any():
+        return False
+    return True
 
 
 
@@ -280,9 +297,10 @@ def my_fillna_spatial(hydro_basin,hydro_var_name,time_idx,dataset_name,version=1
     return hydro_basin,(missing_points.shape[0]==0)
 
 
-def my_fillna(hydro_basin,hydro_var_name,time_idx,dataset_name,version=1,threshold=5,path='../datasets/hydrology',method='cubic'):
-    hydro_basin,temporal_filling=my_fillna_temporal(hydro_basin,hydro_var_name,time_idx,method=method)
-    hydro_basin,spatial_filling=my_fillna_spatial(hydro_basin,hydro_var_name,time_idx,dataset_name,version=version,threshold=threshold,path=path)
+def my_fillna(hydro_basin,hydro_var_name,time_idx,time_X,dataset_name,version=1,threshold=5,path='../datasets/hydrology',method='cubic'):
+    hydro_basin,temporal_filling=my_fillna_temporal(hydro_basin,hydro_var_name,time_X,method=method)
+    hydro_basin,spatial_filling=my_fillna_spatial(hydro_basin,hydro_var_name,time_X,dataset_name,version=version,threshold=threshold,path=path)
+    hydro_basin=hydro_basin[['x','y','geometry']+['{} {}'.format(hydro_var_name,d.date()) for d in time_idx]]
     return hydro_basin,temporal_filling&spatial_filling
 
 
@@ -335,10 +353,10 @@ def hydrological_variables_basin_filtered(hydro_basin,hydro_var_name,time_idx,da
         hydro_mean_basin=weighted_average(hydro_basin,hydro_var_name,time_idx,lat_res=lat_res,long_res=long_res,a=a)
 
         # derivative f(x+1)-f(x-1)/2
-        hydro_mean_basin=0.5*hydro_mean_basin.iloc[2:].values-0.5*hydro_mean_basin.iloc[:-2].values
+        hydro_mean_basin_der=0.5*hydro_mean_basin.iloc[2:].values-0.5*hydro_mean_basin.iloc[:-2].values
 
         # formatting
-        df_filter=pd.Series(hydro_mean_basin.flatten(),index=time_idx[1:-1],name='{} mean filtered'.format(hydro_var_name))
+        df_filter=pd.Series(hydro_mean_basin_der.flatten(),index=time_idx[1:-1],name='{} mean filtered'.format(hydro_var_name))
         return hydro_mean_basin,df_filter
 
     # otherwise, filtering to match the differential
