@@ -32,6 +32,10 @@ Terrestrial water storage :
 * TWS_GRACE_JPL
 * TWS_GRACE_CSR
 
+Potential EvapoTranspiration : 
+* 
+* CRU ([Climatic Research Unit](https://catalogue.ceda.ac.uk/uuid/89e1e34ec3554dc98594a5732622bce9)) : monthly, Jan 1901-Dec 2019, 0.5° x 0.5°, -60°x90°
+
 
 ## Information on datasets : 
 MERRA2 : https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2, -180°; 180°, 0.5°x0.625°, 1-1-1980 to 1-10-2020
