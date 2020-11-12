@@ -13,7 +13,7 @@ Evapotranspiration:
 
 Precipitations : 
 
-* P_CPC
+* P_CPC : observation based, monthly, Jan 2002 - Dec 2017, 0.5° x 0.5°, global (modelled over seas)
 * P_GLDAS21
 * P_MERRA2
 * P_MSWEP
