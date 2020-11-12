@@ -14,7 +14,7 @@ Evapotranspiration:
 Precipitations : 
 
 * P_CPC : observation based, monthly, Jan 2002 - Dec 2017, 0.5° x 0.5°, global (modelled over seas)
-* P_GLDAS21
+* P_GLDAS21 : forcing data (Princeton), monthly, Jan 2000 - June 2020, 1° x 1°, on land
 * P_MERRA2
 * P_MSWEP
 * P_TRMM
