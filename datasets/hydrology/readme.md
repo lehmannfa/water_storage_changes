@@ -35,4 +35,4 @@ Terrestrial water storage :
 
 Potential EvapoTranspiration : 
 * USGS ([United States Geological Survey](https://earlywarning.usgs.gov/fews/product/81)) : 
-* CRU ([Climatic Research Unit](https://catalogue.ceda.ac.uk/uuid/89e1e34ec3554dc98594a5732622bce9)) : monthly, Jan 1901-Dec 2019, 0.5° x 0.5°, -60°x90°
+* CRU ([Climatic Research Unit](https://catalogue.ceda.ac.uk/uuid/89e1e34ec3554dc98594a5732622bce9)) : observation based, monthly, Jan 1901-Dec 2019, 0.5° x 0.5°, -60°x90°
