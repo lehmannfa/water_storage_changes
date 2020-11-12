@@ -21,9 +21,9 @@ Precipitations :
 
 Runoff : 
 
-* R_GLDAS21_CLSM25 : , monthly, Jan 2000 - June 2020, 1° x 1°, on land
-* R_GLDAS21_NOAH36 : , monthly, Jan 2000 - June 2020, 1° x 1°, on land
-* R_GLDAS21_VIC412 : , monthly, Jan 2000 - June 2020, 1° x 1°, on land
+* R_GLDAS21_CLSM25 : satellite + ground based observations, monthly, Jan 2000 - June 2020, 1° x 1°, on land
+* R_GLDAS21_NOAH36 : satellite + ground based observations, monthly, Jan 2000 - June 2020, 1° x 1°, on land
+* R_GLDAS21_VIC412 : satellite + ground based observations, monthly, Jan 2000 - June 2020, 1° x 1°, on land
 * R_GRUN ([link](https://figshare.com/articles/GRUN_Global_Runoff_Reconstruction/9228176)): machine learning from GRDC observations, monthly, Jan 1902 - Dec 2014 (restricted to Jan 1979 - Dec 2014), 0.5° x 0.5°, -60° x 80° on land 
 * R_MERRA2 ([link](https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2)) : , monthly, Jan 1980 - Sep 2020, 0.5° x 0.625°, on land
 
