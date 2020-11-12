@@ -15,8 +15,8 @@ Precipitations :
 
 * P_CPC : observation based, monthly, Jan 2002 - Dec 2017, 0.5° x 0.5°, global (modelled over seas)
 * P_GLDAS21 : forcing data (Princeton), monthly, Jan 2000 - June 2020, 1° x 1°, on land
-* P_MERRA2
-* P_MSWEP
+* P_MERRA2 ([link](https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2)) : , monthly, Jan 1980 - Sep 2020, 0.5° x 0.625°, on land
+* P_MSWEP : satellite, monthly, Jan 1979 - Oct 2017, 0.5° x 0.5°, global
 * P_TRMM
 
 Runoff : 
@@ -36,7 +36,3 @@ Terrestrial water storage :
 Potential EvapoTranspiration : 
 * USGS ([United States Geological Survey](https://earlywarning.usgs.gov/fews/product/81)) : 
 * CRU ([Climatic Research Unit](https://catalogue.ceda.ac.uk/uuid/89e1e34ec3554dc98594a5732622bce9)) : monthly, Jan 1901-Dec 2019, 0.5° x 0.5°, -60°x90°
-
-
-## Information on datasets : 
-MERRA2 : https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2, -180°; 180°, 0.5°x0.625°, 1-1-1980 to 1-10-2020
