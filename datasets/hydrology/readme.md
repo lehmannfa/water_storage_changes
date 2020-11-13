@@ -19,6 +19,7 @@ Precipitations :
 * P_MSWEP : satellite, monthly, Jan 1979 - Oct 2017, 0.5° x 0.5°, global
 * P_TRMM : , monthly, Jan 2002 - Dec 2016, 0.5° x 0.5°, -50° x 50°
 * P_CRU : 
+* P_GPCP ([link](https://psl.noaa.gov/data/gridded/data.gpcp.html)) : 2.5° x 2.5°
 
 Runoff : 
 
