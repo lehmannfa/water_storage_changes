@@ -5,9 +5,9 @@ Datasets are too large to be stored on Github, they need to be downloaded from [
 
 Evapotranspiration: 
 
-* ET_GLDAS21_CLSM25 : , monthly, Jan 2000 - June 2020, 1° x 1°, on land
+* ET_GLDAS21_CLSM25 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_CLSM10_M_2.1/summary?keywords=GLDAS_CLSM10_M_2.1)) : , monthly, Jan 2000 - June 2020, 1° x 1°, on land
 * ET_GLDAS21_NOAH36 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH10_M_2.1/summary?keywords=GLDAS_NOAH10_M_2.1)) : , monthly, Jan 2000 - June 2020, 1° x 1°, on land
-* ET_GLDAS_VIC412 : , monthly, Jan 2000 - June 2020, 1° x 1°, on land
+* ET_GLDAS_VIC412 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_VIC10_M_2.1/summary?keywords=GLDAS_VIC10_M_2.1)) : , monthly, Jan 2000 - June 2020, 1° x 1°, on land
 * ET_MERRA2 ([link](https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2)) : , monthly, Jan 1980 - Sep 2020, 0.5° x 0.625°, on land
 * ET_SEBBop : , monthly, Jan 2003 - Sep 2020, 0.5° x 0.5°, -60° x 80° on land
 
@@ -18,14 +18,14 @@ Precipitations :
 * P_MERRA2 ([link](https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2)) : , monthly, Jan 1980 - Sep 2020, 0.5° x 0.625°, on land
 * P_MSWEP : satellite, monthly, Jan 1979 - Oct 2017, 0.5° x 0.5°, global
 * P_TRMM : , monthly, Jan 2002 - Dec 2016, 0.5° x 0.5°, -50° x 50°
-* P_CRU : 
-* P_GPCP ([link](https://psl.noaa.gov/data/gridded/data.gpcp.html)) : 2.5° x 2.5°
+* P_CRU ([Climatic Research Unit](https://catalogue.ceda.ac.uk/uuid/89e1e34ec3554dc98594a5732622bce9)) : observation based, monthly, Jan 1901-Dec 2019 (restricted to Jan 1979 - Dec 2019), 0.5° x 0.5°, -60°x90°
+* P_GPCP ([link](https://psl.noaa.gov/data/gridded/data.gpcp.html)) : 2.5° x 2.5° interpolated to 0.5° x 0.5°
 
 Runoff : 
 
-* R_GLDAS21_CLSM25 : satellite + ground based observations, monthly, Jan 2000 - June 2020, 1° x 1°, on land
+* R_GLDAS21_CLSM25 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_CLSM10_M_2.1/summary?keywords=GLDAS_CLSM10_M_2.1)) : satellite + ground based observations, monthly, Jan 2000 - June 2020, 1° x 1°, on land
 * R_GLDAS21_NOAH36 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH10_M_2.1/summary?keywords=GLDAS_NOAH10_M_2.1)): satellite + ground based observations, monthly, Jan 2000 - June 2020, 1° x 1°, on land
-* R_GLDAS21_VIC412 : satellite + ground based observations, monthly, Jan 2000 - June 2020, 1° x 1°, on land
+* R_GLDAS21_VIC412 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_VIC10_M_2.1/summary?keywords=GLDAS_VIC10_M_2.1)) : satellite + ground based observations, monthly, Jan 2000 - June 2020, 1° x 1°, on land
 * R_GRUN ([link](https://figshare.com/articles/GRUN_Global_Runoff_Reconstruction/9228176)): machine learning from GRDC observations, monthly, Jan 1902 - Dec 2014 (restricted to Jan 1979 - Dec 2014), 0.5° x 0.5°, -60° x 80° on land 
 * R_MERRA2 ([link](https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2)) : , monthly, Jan 1980 - Sep 2020, 0.5° x 0.625°, on land
 
