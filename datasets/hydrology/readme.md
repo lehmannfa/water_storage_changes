@@ -43,6 +43,6 @@ Potential EvapoTranspiration :
 
 
 
-GLDAS2.0 NOAH https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH10_M_2.0/summary?keywords=GLDAS : Jan 1948-Dec 2014 (restricted to Jan 1979 - Dec 2014), 1.0° x 1.0°
+GLDAS2.0 NOAH https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH10_M_2.0/summary?keywords=GLDAS : Jan 1948-Dec 2014 (restricted to Jan 1979 - Dec 2014), 1.0° x 1.0°, -60° x 90°
 GLDAS2.0 CLSM https://disc.gsfc.nasa.gov/datasets/GLDAS_CLSM10_M_2.0/summary?keywords=GLDAS
 GLDAS2.0 VIC https://disc.gsfc.nasa.gov/datasets/GLDAS_VIC10_M_2.0/summary?keywords=GLDAS
