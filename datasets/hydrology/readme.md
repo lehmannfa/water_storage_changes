@@ -8,6 +8,9 @@ Evapotranspiration:
 * ET_GLDAS21_CLSM25 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_CLSM10_M_2.1/summary?keywords=GLDAS_CLSM10_M_2.1)) : , monthly, Jan 2000 - June 2020, 1° x 1°, on land
 * ET_GLDAS21_NOAH36 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH10_M_2.1/summary?keywords=GLDAS_NOAH10_M_2.1)) : , monthly, Jan 2000 - June 2020, 1° x 1°, on land
 * ET_GLDAS_VIC412 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_VIC10_M_2.1/summary?keywords=GLDAS_VIC10_M_2.1)) : , monthly, Jan 2000 - June 2020, 1° x 1°, on land
+* ET_GLDAS20_CLSM25 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_CLSM10_M_2.0/summary?keywords=GLDAS)) : monthly, Jan 1948-Dec 2014 (restricted to Jan 1979 - Dec 2014), 1.0° x 1.0°, -60° x 90°, on land
+* ET_GLDAS20_NOAH36 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH10_M_2.0/summary?keywords=GLDAS)): monthly, Jan 1948-Dec 2014 (restricted to Jan 1979 - Dec 2014), 1.0° x 1.0°, -60° x 90°, on land 
+* ET_GLDAS20_VIC412 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_VIC10_M_2.0/summary?keywords=GLDAS)): monthly, Jan 1948-Dec 2014 (restricted to Jan 1979 - Dec 2014), 1.0° x 1.0°, -60° x 90°, on land 
 * ET_MERRA2 ([link](https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2)) : , monthly, Jan 1980 - Sep 2020, 0.5° x 0.625°, on land
 * ET_SEBBop : , monthly, Jan 2003 - Sep 2020, 0.5° x 0.5°, -60° x 80° on land
 * ET_GLEAM ([Global Land Evaporation Amsterdam Model](https://www.gleam.eu/)) : reanalysis, monthly, Jan 1980 - Dec 2018, 0.25° x 0.25° mapped to 0.5° x 0.5°, global on land
@@ -27,6 +30,9 @@ Runoff :
 * R_GLDAS21_CLSM25 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_CLSM10_M_2.1/summary?keywords=GLDAS_CLSM10_M_2.1)) : satellite + ground based observations, monthly, Jan 2000 - June 2020, 1° x 1°, on land
 * R_GLDAS21_NOAH36 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH10_M_2.1/summary?keywords=GLDAS_NOAH10_M_2.1)): satellite + ground based observations, monthly, Jan 2000 - June 2020, 1° x 1°, on land
 * R_GLDAS21_VIC412 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_VIC10_M_2.1/summary?keywords=GLDAS_VIC10_M_2.1)) : satellite + ground based observations, monthly, Jan 2000 - June 2020, 1° x 1°, on land
+* ET_GLDAS20_CLSM25 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_CLSM10_M_2.0/summary?keywords=GLDAS)) : monthly, Jan 1948-Dec 2014 (restricted to Jan 1979 - Dec 2014), 1.0° x 1.0°, -60° x 90°, on land
+* ET_GLDAS20_NOAH36 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH10_M_2.0/summary?keywords=GLDAS)): monthly, Jan 1948-Dec 2014 (restricted to Jan 1979 - Dec 2014), 1.0° x 1.0°, -60° x 90°, on land
+* ET_GLDAS20_VIC412 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_VIC10_M_2.0/summary?keywords=GLDAS)): monthly, Jan 1948-Dec 2014 (restricted to Jan 1979 - Dec 2014), 1.0° x 1.0°, -60° x 90°, on land 
 * R_GRUN ([link](https://figshare.com/articles/GRUN_Global_Runoff_Reconstruction/9228176)): machine learning from GRDC observations, monthly, Jan 1902 - Dec 2014 (restricted to Jan 1979 - Dec 2014), 0.5° x 0.5°, -60° x 80° on land 
 * R_MERRA2 ([link](https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2)) : , monthly, Jan 1980 - Sep 2020, 0.5° x 0.625°, on land
 
@@ -42,13 +48,8 @@ Potential EvapoTranspiration :
 * PET ([Global Land Evaporation Amsterdam Model](https://www.gleam.eu/)) : reanalysis, monthly, Jan 1980 - Dec 2018, 0.25° x 0.25° mapped to 0.5° x 0.5°, global on land
 
 
-
-GLDAS2.0 NOAH https://disc.gsfc.nasa.gov/datasets/GLDAS_NOAH10_M_2.0/summary?keywords=GLDAS : Jan 1948-Dec 2014 (restricted to Jan 1979 - Dec 2014), 1.0° x 1.0°, -60° x 90°
-GLDAS2.0 CLSM https://disc.gsfc.nasa.gov/datasets/GLDAS_CLSM10_M_2.0/summary?keywords=GLDAS
-GLDAS2.0 VIC https://disc.gsfc.nasa.gov/datasets/GLDAS_VIC10_M_2.0/summary?keywords=GLDAS
-
 CLSM simulates shallow groundwater. Terrestrial Water Storage in CLSM = soil water + snow water equivalent + canopy water + groundwater
 
 TWS in Noah = soil moisture in all layers + accumulated snow + plant canopy surface water
 
-Groundwater storage in included in CLSM TWS : GWS = TWS - RootZoneSoilMoisture - SnowWaterEquivalent - CanopyInterception
+Groundwater storage is included in CLSM TWS : GWS = TWS - RootZoneSoilMoisture - SnowWaterEquivalent - CanopyInterception
