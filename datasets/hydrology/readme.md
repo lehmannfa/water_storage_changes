@@ -25,6 +25,8 @@ Precipitations :
 * P_CRU ([Climatic Research Unit](https://catalogue.ceda.ac.uk/uuid/89e1e34ec3554dc98594a5732622bce9)) : observation based, monthly, Jan 1901-Dec 2019 (restricted to Jan 1979 - Dec 2019), 0.5° x 0.5°, -60°x90°
 * P_GPCP ([link](https://psl.noaa.gov/data/gridded/data.gpcp.html)) : monthly, Jan 1979 - Oct 2020, 2.5° x 2.5° interpolated to 0.5° x 0.5°
 
+GPM : https://disc.gsfc.nasa.gov/datasets/GPM_3IMERGM_06/summary?keywords=%22IMERG%20final%22
+
 Runoff : 
 
 * R_GLDAS21_CLSM25 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_CLSM10_M_2.1/summary?keywords=GLDAS_CLSM10_M_2.1)) : satellite + ground based observations, monthly, Jan 2000 - June 2020, 1° x 1°, on land
