@@ -53,3 +53,6 @@ CLSM simulates shallow groundwater. Terrestrial Water Storage in CLSM = soil wat
 TWS in Noah = soil moisture in all layers + accumulated snow + plant canopy surface water
 
 Groundwater storage is included in CLSM TWS : GWS = TWS - RootZoneSoilMoisture - SnowWaterEquivalent - CanopyInterception
+
+
+ERA5-Land : https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-land-monthly-means?tab=overview
