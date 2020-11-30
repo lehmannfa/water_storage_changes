@@ -20,7 +20,7 @@ Precipitations :
 
 * P_CPC : observation based, monthly, Jan 2002 - Dec 2017, 0.5° x 0.5°, global (modelled over seas)
 * P_GLDAS21 : forcing data (Princeton), monthly, Jan 2000 - June 2020, 1° x 1°, on land
-* P_GPCC ([DWD](https://opendata.dwd.de/climate_environment/GPCC/html/fulldata-monthly_v2018_doi_download.html)) : monthly, Jan 1891 - Dec 2016 (restricted to Jan 1979 - Dec 2016), 0.5° x 0.5°
+* P_GPCC ([DWD](https://opendata.dwd.de/climate_environment/GPCC/html/fulldata-monthly_v2018_doi_download.html)) : monthly, Jan 1891 - Dec 2016 (restricted to Jan 1979 - Dec 2016), 0.5° x 0.5°, global on land without Antarctica
 * P_GPCP ([link](https://psl.noaa.gov/data/gridded/data.gpcp.html)) : monthly, Jan 1979 - Oct 2020, 2.5° x 2.5° interpolated to 0.5° x 0.5°
 * P_GPM ([NASA](https://disc.gsfc.nasa.gov/datasets/GPM_3IMERGM_06/summary?keywords=%22IMERG%20final%22)) : monthly, June 2000 - Aug 2020, 0.1° x 0.1°, global
 * P_ERA5-Land ([ECMWF](https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-land-monthly-means?tab=overview)) : monthly, Jan 1981 - Aug 2020, 0.1° x 0.1°, global on land
