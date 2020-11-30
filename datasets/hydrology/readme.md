@@ -20,13 +20,14 @@ Precipitations :
 
 * P_CPC : observation based, monthly, Jan 2002 - Dec 2017, 0.5° x 0.5°, global (modelled over seas)
 * P_GLDAS21 : forcing data (Princeton), monthly, Jan 2000 - June 2020, 1° x 1°, on land
+* P_GPCC ([DWD](https://opendata.dwd.de/climate_environment/GPCC/html/fulldata-monthly_v2018_doi_download.html)) : 
+* P_GPCP ([link](https://psl.noaa.gov/data/gridded/data.gpcp.html)) : monthly, Jan 1979 - Oct 2020, 2.5° x 2.5° interpolated to 0.5° x 0.5°
 * P_GPM ([NASA](https://disc.gsfc.nasa.gov/datasets/GPM_3IMERGM_06/summary?keywords=%22IMERG%20final%22)) : monthly, June 2000 - Aug 2020, 0.1° x 0.1°, global
 * P_ERA5-Land ([ECMWF](https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-land-monthly-means?tab=overview)) : monthly, Jan 1981 - Aug 2020, 0.1° x 0.1°, global on land
 * P_MERRA2 ([link](https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2)) : , monthly, Jan 1980 - Sep 2020, 0.5° x 0.625°, on land
 * P_MSWEP : satellite, monthly, Jan 1979 - Oct 2017, 0.5° x 0.5°, global
 * P_TRMM : , monthly, Jan 2002 - Dec 2016, 0.5° x 0.5°, -50° x 50°
 * P_CRU ([Climatic Research Unit](https://catalogue.ceda.ac.uk/uuid/89e1e34ec3554dc98594a5732622bce9)) : observation based, monthly, Jan 1901-Dec 2019 (restricted to Jan 1979 - Dec 2019), 0.5° x 0.5°, -60°x90°
-* P_GPCP ([link](https://psl.noaa.gov/data/gridded/data.gpcp.html)) : monthly, Jan 1979 - Oct 2020, 2.5° x 2.5° interpolated to 0.5° x 0.5°
 
 Runoff : 
 
