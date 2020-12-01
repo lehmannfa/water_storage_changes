@@ -15,7 +15,7 @@ Evapotranspiration:
 * ET_GLDAS20_VIC412 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_VIC10_M_2.0/summary?keywords=GLDAS)): monthly, Jan 1948-Dec 2014 (restricted to Jan 1979 - Dec 2014), 1.0° x 1.0°, -60° x 90°, on land 
 * ET_MERRA2 ([link](https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2)) : , monthly, Jan 1980 - Sep 2020, 0.5° x 0.625°, on land
 * ET_MOD16 ([University of Montana](https://www.ntsg.umt.edu/project/modis/mod16.php)) : Penman-Monteith, monthly, Jan 2000 - Dec 2014, 0.5 ° x 0.5°, on land
-* ET_SEBBop : , monthly, Jan 2003 - Sep 2020, 0.5° x 0.5°, -60° x 80° on land
+* ET_SEBBop ([USGS](https://earlywarning.usgs.gov/fews/product/81)) : , monthly, Jan 2003 - Sep 2020, 0.5° x 0.5°, -60° x 80° on land
 
 Precipitations : 
 
@@ -50,9 +50,9 @@ Terrestrial water storage :
 * TWS_GRACE_CSR_grid ([Center for Space Research](https://podaac.jpl.nasa.gov/dataset/TELLUS_GRAC_L3_CSR_RL06_LND_v03)) : land mass grids from spherical harmonics, monthly, Apr 2002 - June 2017, 1°x1° on land
 
 Potential EvapoTranspiration : 
-* USGS ([United States Geological Survey](https://earlywarning.usgs.gov/fews/product/81)) : 
-* CRU ([Climatic Research Unit](https://catalogue.ceda.ac.uk/uuid/89e1e34ec3554dc98594a5732622bce9)) : observation based, monthly, Jan 1901-Dec 2019 (restricted to Jan 1979 - Dec 2019), 0.5° x 0.5°, -60°x90°
-* PET ([Global Land Evaporation Amsterdam Model](https://www.gleam.eu/)) : reanalysis, monthly, Jan 1980 - Dec 2018, 0.25° x 0.25° mapped to 0.5° x 0.5°, global on land
+* PET_CRU ([Climatic Research Unit](https://catalogue.ceda.ac.uk/uuid/89e1e34ec3554dc98594a5732622bce9)) : observation based, monthly, Jan 1901-Dec 2019 (restricted to Jan 1979 - Dec 2019), 0.5° x 0.5°, -60°x90°
+* PET_GLEAM ([Global Land Evaporation Amsterdam Model](https://www.gleam.eu/)) : reanalysis, monthly, Jan 1980 - Dec 2018, 0.25° x 0.25° mapped to 0.5° x 0.5°, global on land
+* PET_SSEBop ([USGS](https://earlywarning.usgs.gov/fews/product/81)) : 
 
 
 CLSM simulates shallow groundwater. Terrestrial Water Storage in CLSM = soil water + snow water equivalent + canopy water + groundwater
