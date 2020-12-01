@@ -48,6 +48,7 @@ Terrestrial water storage :
 * TWS_GRACE_JPL ([Jet Propulsion Laboratory](https://podaac.jpl.nasa.gov/dataset/TELLUS_GRAC-GRFO_MASCON_CRI_GRID_RL06_V2)) : mascons, monthly, Apr 2002 - Present, 0.5° x 0.5°, global 
 * TWS_GRACE_CSR ([Center for Space Research](http://www2.csr.utexas.edu/grace/RL06_mascons.html)) : mascons
 * TWS_GRACE_CSR_grid ([Center for Space Research](https://podaac.jpl.nasa.gov/dataset/TELLUS_GRAC_L3_CSR_RL06_LND_v03)) : land mass grids from spherical harmonics, monthly, Apr 2002 - June 2017, 1°x1° on land
+* TWS_GRACE_ITSG_grid : *there is no gridded data because the dataset was provided with basin averages* 
 
 Potential EvapoTranspiration : 
 * PET_CRU ([Climatic Research Unit](https://catalogue.ceda.ac.uk/uuid/89e1e34ec3554dc98594a5732622bce9)) : observation based, monthly, Jan 1901-Dec 2019 (restricted to Jan 1979 - Dec 2019), 0.5° x 0.5°, -60°x90°
