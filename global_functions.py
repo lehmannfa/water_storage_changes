@@ -1,5 +1,6 @@
 from matplotlib.colors import Normalize, ListedColormap, BoundaryNorm
 from matplotlib import cm
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import colorcet as cc
@@ -34,7 +35,7 @@ def define_cmap(hydro_var_name,hydro_basin,year,month):
 
     if hydro_var_name=='TWS':
         norm = MidpointNormalize(midpoint=0,vmin=vmin, vmax=vmax)
-        cmap='RdBu_r'
+        cmap='RdBu'
     elif hydro_var_name=='P':
         norm = Normalize(vmin=0, vmax=vmax)
         cmap='Blues'
@@ -52,6 +53,17 @@ def define_cmap_perf(metric,discrete=True):
         if discrete:
             cmap=cm.YlGn
             bounds = [0,0.2,0.5,0.65,0.85,1]
+            norm = BoundaryNorm(bounds, cmap.N)
+        else:
+            top = cm.get_cmap('YlGn', 128)
+            newcolors = np.vstack((np.ones((128,4)),
+                           top(np.linspace(0, 1, 128))))
+            cmap = ListedColormap(newcolors, name='WhiteGreen')
+            norm = MidpointNormalize(midpoint=0, vmin=0,vmax=1)
+    if metric=='NSE_large':
+        if discrete:
+            cmap=cm.YlGn
+            bounds = [0.19,0.2,0.5,0.75,1]
             norm = BoundaryNorm(bounds, cmap.N)
         else:
             top = cm.get_cmap('YlGn', 128)
@@ -91,9 +103,26 @@ def normalize(X,a=-1,b=1):
     return Xnorm
 
 
+def derivative(X):
+    ''' compute the 2 points derivative'''
+    Y=0.5*(X[2:].values-X[:-2].values)
+    return Y
+
+
+def uncertainty_derivative(X):
+    Y=0.5*np.sqrt(X[2:].values**2+X[:-2].values**2)
+    return Y
+
+
+def time_filter(X):
+    ''' filter to match derivation of TWS'''
+    Y=0.25*X[:-2].values+0.5*X[1:-1].values+0.25*X[2:].values
+    return Y
+
+
 
 ## HYDROLOGICAL VARIABLES OVER GRID
-def load_hydro_data(hydro_var_name,dataset_name,time_idx,fill_value=-9999,path='../datasets/hydrology',version=1,fill_nan=True):
+def load_hydro_data(hydro_var_name,dataset_name,fill_value=-9999,path='../datasets/hydrology',version=1,fill_nan=True):
     # load dataset
     X=netCDF4.Dataset("{}/{}_{}.nc".format(path,hydro_var_name,dataset_name))
 
@@ -127,18 +156,15 @@ def load_hydro_data(hydro_var_name,dataset_name,time_idx,fill_value=-9999,path='
 
     # dataframe of each variable at each month over all grid point
     hydro_var=np.asarray(X.variables['{}_mm'.format(hydro_var_name)])
-    X_grid=hydrological_variables_grid(hydro_var,time_X,hydro_var_name,spatial_grid,time_idx, fill_value=fill_value,version=version,fill_nan=fill_nan)
+    X_grid=hydrological_variables_grid(hydro_var,time_X,hydro_var_name,spatial_grid, fill_value=fill_value,version=version,fill_nan=fill_nan)
 
     return spatial_grid, X_grid, time_X
 
 
 
-def hydrological_variables_grid(hydro_var,time_X,hydro_var_name,spatial_grid,time_idx,fill_value,version=1,fill_nan=True):
+def hydrological_variables_grid(hydro_var,time_X,hydro_var_name,spatial_grid,fill_value,version=1,fill_nan=True):
     ''' returns a DataFrame with as many rows as the number of grid points
     in each column, the hydrological variable given for each month of time '''
-    ind_time=np.where(time_X.isin(time_idx))[0]
-
-    #columns=['{} {}'.format(hydro_var_name,d.date()) for d in time_idx]
     columns=['{} {}'.format(hydro_var_name,d.date()) for d in time_X]
     db=spatial_grid.copy()
 
@@ -147,10 +173,8 @@ def hydrological_variables_grid(hydro_var,time_X,hydro_var_name,spatial_grid,tim
             # replace all missing values (=fill_value) by nans
             hydro_var=np.where(hydro_var==fill_value,np.nan,hydro_var)
 
-        # select hydrological variable at overlapping time points
-        #hydro_grid=np.asarray(hydro_var)[ind_time,:]
-        hydro_grid=np.asarray(hydro_var)
-        hydro_grid=pd.DataFrame(hydro_grid.T,index=db.index,columns=columns)
+        # select hydrological variable
+        hydro_grid=pd.DataFrame(hydro_var.T,index=db.index,columns=columns)
 
     if version==2:
         # hydro_var is of shape (nb_month x latitude points x longitude points
@@ -159,7 +183,7 @@ def hydrological_variables_grid(hydro_var,time_X,hydro_var_name,spatial_grid,tim
             hydro_var=np.where(hydro_var==fill_value,np.nan,hydro_var)
         Nx=hydro_var.shape[2]
         Ny=hydro_var.shape[1]
-        Nt=ind_time.shape[0]
+        Nt=time_X.shape[0]
 
         #hydro_grid=hydro_var[ind_time].T.reshape(Nx*Ny,Nt)
 
@@ -297,10 +321,10 @@ def my_fillna_spatial(hydro_basin,hydro_var_name,time_idx,dataset_name,version=1
     return hydro_basin,(missing_points.shape[0]==0)
 
 
-def my_fillna(hydro_basin,hydro_var_name,time_idx,time_X,dataset_name,version=1,threshold=5,path='../datasets/hydrology',method='cubic'):
+def my_fillna(hydro_basin,hydro_var_name,time_X,dataset_name,version=1,threshold=5,path='../datasets/hydrology',method='cubic'):
     hydro_basin,temporal_filling=my_fillna_temporal(hydro_basin,hydro_var_name,time_X,method=method)
     hydro_basin,spatial_filling=my_fillna_spatial(hydro_basin,hydro_var_name,time_X,dataset_name,version=version,threshold=threshold,path=path)
-    hydro_basin=hydro_basin[['x','y','geometry']+['{} {}'.format(hydro_var_name,d.date()) for d in time_idx]]
+    hydro_basin=hydro_basin[['x','y','geometry']+['{} {}'.format(hydro_var_name,d.date()) for d in time_X]]
     return hydro_basin,temporal_filling&spatial_filling
 
 
@@ -347,29 +371,27 @@ def hydrological_variables_basin_filtered(hydro_basin,hydro_var_name,time_idx,da
 
     (lat_res,long_res)=compute_spatial_resolution(hydro_var_name,dataset_name,version=version,path=path)
 
+    # mean over the basin at each time point
+    hydro_mean_basin=weighted_average(hydro_basin,hydro_var_name,time_idx,lat_res=lat_res,long_res=long_res,a=a)
+
     # if terrestrial water storage, need to differentiate
     if hydro_var_name=='TWS':
-        # mean over the basin at each time point
-        hydro_mean_basin=weighted_average(hydro_basin,hydro_var_name,time_idx,lat_res=lat_res,long_res=long_res,a=a)
+        hydro_mean_basin_filter=derivative(hydro_mean_basin)
 
-        # derivative f(x+1)-f(x-1)/2
-        hydro_mean_basin_der=0.5*hydro_mean_basin.iloc[2:].values-0.5*hydro_mean_basin.iloc[:-2].values
-
-        # formatting
-        df_filter=pd.Series(hydro_mean_basin_der.flatten(),index=time_idx[1:-1],name='{} mean filtered'.format(hydro_var_name))
-        return hydro_mean_basin,df_filter
+    # if water storage uncertainty, we apply the formula for uncertainty addition
+    elif hydro_var_name=='TWS_uncertainty':
+        hydro_mean_basin_filter=uncertainty_derivative(hydro_mean_basin)
 
     # otherwise, filtering to match the differential
+    elif hydro_var_name in ['P','ET','R','PET']:
+        hydro_mean_basin_filter=time_filter(hydro_mean_basin)
+
     else:
-        #mean over the basin at each time point
-        hydro_mean_basin=weighted_average(hydro_basin,hydro_var_name,time_idx,lat_res=lat_res,long_res=long_res,a=a)
+        raise Exception('Variable {} is unknown'.format(hydro_var_name))
 
-        # temporal filtering [f(i-1)+2f(i)+f(i+1)]/4
-        hydro_mean_basin_filter=0.25*hydro_mean_basin.iloc[:-2].values+0.5*hydro_mean_basin.iloc[1:-1].values+0.25*hydro_mean_basin.iloc[2:].values
-
-        # formatting
-        df_filter=pd.Series(hydro_mean_basin_filter.flatten(),index=time_idx[1:-1],name='{} mean filtered'.format(hydro_var_name))
-        return hydro_mean_basin,df_filter
+    # formatting
+    df_filter=pd.Series(hydro_mean_basin_filter.flatten(),index=time_idx[1:-1],name='{} mean filtered'.format(hydro_var_name))
+    return hydro_mean_basin,df_filter
 
 
 
@@ -390,6 +412,88 @@ def compute_NSE(X,Y): # should be as close from 1 as possible
         raise Exception("Shape of X {} is different from shape of Y {}".format(X.shape,Y.shape))
     res=1-np.sum((X-Y)**2)/np.sum((X-Y.mean())**2)
     return res
+
+
+
+
+## PLOTS
+def plot_water_budget(TWSC_filter,A_filter,time_idx,basin_name,data_P,data_ET,data_R,data_TWS,save_fig=False):
+    TWSC_filter.index=time_idx
+
+    corr=A_filter.corr(TWSC_filter)
+    PBIAS=percentage_bias(A_filter,TWSC_filter)
+    NSE=compute_NSE(A_filter,TWSC_filter)
+
+    TWSC_mean=TWSC_filter.mean()
+    A_mean=A_filter.mean()
+    plt.figure()
+    plt.plot(TWSC_filter,'k',label='dTWS/dt mean={:.2f}'.format(TWSC_mean))
+    plt.plot([TWSC_filter.index[0],TWSC_filter.index[-1]],[TWSC_mean,TWSC_mean],'k--',alpha=0.5)
+    plt.plot(A_filter,color='darkviolet',label='P-ET-R mean={:.2f}'.format(A_mean))
+    plt.plot([A_filter.index[0],A_filter.index[-1]],[A_mean,A_mean],'--',color='darkviolet',alpha=0.5)
+    plt.legend()
+    plt.title("Water budget equation in {} \n P {}, ET {}, R {}, TWS {} \n NSE={:.2f} PBIAS={:.2f} correlation={:.2f}".format(basin_name,
+                                        data_P,data_ET,data_R,data_TWS,NSE,PBIAS,corr))
+    plt.xlabel("month")
+    plt.ylabel("mm")
+    plt.xlim([time_idx[0],time_idx[-1]])
+    plt.tight_layout()
+
+    if save_fig:
+        plt.savefig("../plots/water_budget/{}_P_{}_ET_{}_R_{}.png".format(basin_name,
+                                                data_P,data_ET,data_R))
+    plt.show()
+
+
+def plot_water_budget_details(TWSC_filter,P_filter,ET_filter,R_filter,time_idx,basin_name,data_P,data_ET,data_R,data_TWS,save_fig=False):
+    P_filter.index=time_idx
+    ET_filter.index=time_idx
+    R_filter.index=time_idx
+    TWSC_filter.index=time_idx
+
+    A_filter=P_filter-ET_filter-R_filter
+    corr=A_filter.corr(TWSC_filter)
+    PBIAS=percentage_bias(A_filter,TWSC_filter)
+    NSE=compute_NSE(A_filter,TWSC_filter)
+
+    TWSC_mean=TWSC_filter.mean()
+    plt.figure()
+
+    if data_TWS=='GRACE_JPL_mascons':
+        TWS_uncertainty_month=pd.read_csv('../results/hydrology/TWS_uncertainty_{}_monthly_filtered.csv'.format(data_TWS),index_col=[0])
+        TWSC_uncertainty_filter=TWS_uncertainty_month.loc[basin_name,['TWS_uncertainty_{} {}'.format(data_TWS,d.date()) for d in time_idx]]
+        plt.fill_between(time_idx,TWSC_filter.values-TWSC_uncertainty_filter.values,
+                 TWSC_filter.values+TWSC_uncertainty_filter.values,color='gray',alpha=0.5,label='TWS uncertainty')
+
+    plt.plot(TWSC_filter,'k--',label='dTWS/dt')
+    plt.plot(P_filter,color='dodgerblue',label='P')
+    plt.plot(P_filter-ET_filter,color='teal',label='P-ET')
+    plt.plot(P_filter-ET_filter-R_filter,color='darkviolet',label='P-ET-R')
+
+    plt.legend()
+    plt.title("Water budget equation in {} \n P {}, ET {}, R {},TWS {} \n NSE={:.2f} PBIAS={:.2f} correlation={:.2f}".format(basin_name,
+                                        data_P,data_ET,data_R,data_TWS,NSE,PBIAS,corr))
+    plt.xlabel("month")
+    plt.ylabel("mm")
+    plt.xlim([time_idx[0],time_idx[-1]])
+    plt.tight_layout()
+
+    if save_fig:
+        plt.savefig("../plots/water_budget/{}_P_{}_ET_{}_R_{}_details.png".format(basin_name,
+                                                data_P,data_ET,data_R))
+    plt.show()
+
+
+def decompose_dataset(combination):
+    iP=combination.find('_ET')
+    data_P=combination[2:iP]
+    iET=combination.find('_R')
+    data_ET=combination[iP+4:iET]
+    iR=combination.find('_TWS')
+    data_R=combination[iET+3:iR]
+    data_TWS=combination[iR+5:]
+
+    return data_P,data_ET,data_R,data_TWS
 
 
 
