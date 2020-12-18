@@ -55,10 +55,7 @@ def define_cmap_perf(metric,discrete=True):
             bounds = [0,0.2,0.5,0.65,0.85,1]
             norm = BoundaryNorm(bounds, cmap.N)
         else:
-            top = cm.get_cmap('YlGn', 128)
-            newcolors = np.vstack((np.ones((128,4)),
-                           top(np.linspace(0, 1, 128))))
-            cmap = ListedColormap(newcolors, name='WhiteGreen')
+            cmap = cm.get_cmap('YlGn')
             norm = MidpointNormalize(midpoint=0, vmin=0,vmax=1)
     if metric=='NSE_large':
         if discrete:
@@ -66,10 +63,7 @@ def define_cmap_perf(metric,discrete=True):
             bounds = [0.19,0.2,0.5,0.75,1]
             norm = BoundaryNorm(bounds, cmap.N)
         else:
-            top = cm.get_cmap('YlGn', 128)
-            newcolors = np.vstack((np.ones((128,4)),
-                           top(np.linspace(0, 1, 128))))
-            cmap = ListedColormap(newcolors, name='WhiteGreen')
+            cmap = cm.get_cmap('YlGn')
             norm = MidpointNormalize(midpoint=0, vmin=0,vmax=1)
     if metric=='PBIAS':
         if discrete:
@@ -321,11 +315,20 @@ def my_fillna_spatial(hydro_basin,hydro_var_name,time_idx,dataset_name,version=1
     return hydro_basin,(missing_points.shape[0]==0)
 
 
-def my_fillna(hydro_basin,hydro_var_name,time_X,dataset_name,version=1,threshold=5,path='../datasets/hydrology',method='cubic'):
-    hydro_basin,temporal_filling=my_fillna_temporal(hydro_basin,hydro_var_name,time_X,method=method)
-    hydro_basin,spatial_filling=my_fillna_spatial(hydro_basin,hydro_var_name,time_X,dataset_name,version=version,threshold=threshold,path=path)
+def my_fillna(hydro_basin,hydro_var_name,time_X,dataset_name,version=1,threshold=5,path='../datasets/hydrology',method='cubic',fill_spatial=True):
+    if hydro_var_name=='TWS':
+        hydro_basin,temporal_filling=my_fillna_temporal(hydro_basin,hydro_var_name,time_X,method=method)
+
+    if fill_spatial:
+        hydro_basin,spatial_filling=my_fillna_spatial(hydro_basin,hydro_var_name,time_X,dataset_name,version=version,threshold=threshold,path=path)
+
     hydro_basin=hydro_basin[['x','y','geometry']+['{} {}'.format(hydro_var_name,d.date()) for d in time_X]]
-    return hydro_basin,temporal_filling&spatial_filling
+    nb_nans=np.sum(np.sum(np.isnan(hydro_basin[['{} {}'.format(hydro_var_name,d.date()) for d in time_X]])))
+    filling=nb_nans==0
+    return hydro_basin,filling
+
+
+
 
 
 
@@ -414,6 +417,13 @@ def compute_NSE(X,Y): # should be as close from 1 as possible
     return res
 
 
+def RMSE(X,Y):
+    if X.shape!=Y.shape:
+        raise Exception("Shape of X {} is different from shape of Y {}".format(X.shape,Y.shape))
+
+    return np.sqrt(np.sum((X-Y)**2)/X.shape[0])
+
+
 
 
 ## PLOTS
@@ -445,37 +455,45 @@ def plot_water_budget(TWSC_filter,A_filter,time_idx,basin_name,data_P,data_ET,da
     plt.show()
 
 
-def plot_water_budget_details(TWSC_filter,P_filter,ET_filter,R_filter,time_idx,basin_name,data_P,data_ET,data_R,data_TWS,save_fig=False):
-    P_filter.index=time_idx
-    ET_filter.index=time_idx
-    R_filter.index=time_idx
-    TWSC_filter.index=time_idx
+def plot_water_budget_details(TWSC_filter,P_filter,ET_filter,R_filter,time_selec,basin_name,data_P,data_ET,data_R,data_TWS,save_fig=False,figsize=None):
+    dates=['P_{} {}'.format(data_P,d.date()) for d in time_selec]
+    P=pd.Series(P_filter.loc[dates].values,index=time_selec)
 
-    A_filter=P_filter-ET_filter-R_filter
-    corr=A_filter.corr(TWSC_filter)
-    PBIAS=percentage_bias(A_filter,TWSC_filter)
-    NSE=compute_NSE(A_filter,TWSC_filter)
+    dates=['ET_{} {}'.format(data_ET,d.date()) for d in time_selec]
+    ET=pd.Series(ET_filter.loc[dates].values,index=time_selec)
 
-    TWSC_mean=TWSC_filter.mean()
-    plt.figure()
+    dates=['R_{} {}'.format(data_R,d.date()) for d in time_selec]
+    R=pd.Series(R_filter.loc[dates].values,index=time_selec)
+
+    dates=['TWS_{} {}'.format(data_TWS,d.date()) for d in time_selec]
+    TWSC=pd.Series(TWSC_filter.loc[dates].values,index=time_selec)
+
+    A_filter=P-ET-R
+    NSE=compute_NSE(A_filter,TWSC)
+
+    if figsize:
+        plt.figure(figsize=figsize)
+    else:
+        plt.figure()
 
     if data_TWS=='GRACE_JPL_mascons':
         TWS_uncertainty_month=pd.read_csv('../results/hydrology/TWS_uncertainty_{}_monthly_filtered.csv'.format(data_TWS),index_col=[0])
-        TWSC_uncertainty_filter=TWS_uncertainty_month.loc[basin_name,['TWS_uncertainty_{} {}'.format(data_TWS,d.date()) for d in time_idx]]
-        plt.fill_between(time_idx,TWSC_filter.values-TWSC_uncertainty_filter.values,
-                 TWSC_filter.values+TWSC_uncertainty_filter.values,color='gray',alpha=0.5,label='TWS uncertainty')
+        TWSC_uncertainty_filter=TWS_uncertainty_month.loc[basin_name,['TWS_uncertainty_{} {}'.format(data_TWS,d.date()) for d in time_selec]]
+        TWSC_uncertainty_filter.index=time_selec
+        plt.fill_between(time_selec,TWSC-TWSC_uncertainty_filter,
+                 TWSC+TWSC_uncertainty_filter,color='gray',alpha=0.5,label='TWSC uncertainty')
 
-    plt.plot(TWSC_filter,'k--',label='dTWS/dt')
-    plt.plot(P_filter,color='dodgerblue',label='P')
-    plt.plot(P_filter-ET_filter,color='teal',label='P-ET')
-    plt.plot(P_filter-ET_filter-R_filter,color='darkviolet',label='P-ET-R')
+    plt.plot(time_selec,TWSC,'k--',label='dTWS/dt')
+    plt.plot(time_selec,P,color='dodgerblue',label='P')
+    plt.plot(time_selec,P-ET,color='teal',label='P-ET')
+    plt.plot(time_selec,P-ET-R,color='rebeccapurple',label='P-ET-R')
 
     plt.legend()
-    plt.title("Water budget equation in {} \n P {}, ET {}, R {},TWS {} \n NSE={:.2f} PBIAS={:.2f} correlation={:.2f}".format(basin_name,
-                                        data_P,data_ET,data_R,data_TWS,NSE,PBIAS,corr))
+    plt.title("Water budget equation in {} \n P {}, ET {}, R {},TWS {} \n NSE={:.2f}".format(basin_name,
+                                        data_P,data_ET,data_R,data_TWS,NSE))
     plt.xlabel("month")
     plt.ylabel("mm")
-    plt.xlim([time_idx[0],time_idx[-1]])
+    #plt.xlim([time_selec[0],time_selec[-1]])
     plt.tight_layout()
 
     if save_fig:
@@ -495,6 +513,11 @@ def decompose_dataset(combination):
 
     return data_P,data_ET,data_R,data_TWS
 
+
+def find_best_dataset(basin_name,max_NSE):
+    best_comb=max_NSE.loc[basin_name,'best_dataset']
+
+    return decompose_dataset(best_comb)
 
 
 
