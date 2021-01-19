@@ -65,3 +65,5 @@ TWS in Noah = soil moisture in all layers + accumulated snow + plant canopy surf
 Groundwater storage is included in CLSM TWS : GWS = TWS - RootZoneSoilMoisture - SnowWaterEquivalent - CanopyInterception
 
 JRA55 : https://rda.ucar.edu/datasets/ds628.1/#!access
+
+NCEP 2 : https://psl.noaa.gov/data/gridded/data.ncep.reanalysis2.gaussian.html
