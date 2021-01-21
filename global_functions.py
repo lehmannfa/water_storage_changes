@@ -409,11 +409,11 @@ def percentage_bias(X,Y): # should be as close from 0 as possible
     return res
 
 def compute_NSE(X,Y): # should be as close from 1 as possible
-    ''' X is the estimated variable
-    Y is the observed variables'''
+    ''' X is the estimated variable from the budget equation
+    Y is the reference variable (measured)'''
     if X.shape!=Y.shape:
         raise Exception("Shape of X {} is different from shape of Y {}".format(X.shape,Y.shape))
-    res=1-np.sum((X-Y)**2)/np.sum((X-Y.mean())**2)
+    res=1-np.sum((X-Y)**2)/np.sum((Y-Y.mean())**2)
     return res
 
 
