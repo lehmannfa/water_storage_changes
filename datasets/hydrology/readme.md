@@ -67,3 +67,5 @@ Groundwater storage is included in CLSM TWS : GWS = TWS - RootZoneSoilMoisture -
 JRA55 : https://rda.ucar.edu/datasets/ds628.1/#!access
 
 NCEP 2 : https://psl.noaa.gov/data/gridded/data.ncep.reanalysis2.gaussian.html
+
+FLUXCOM : http://fluxcom.org/EF-Download/
