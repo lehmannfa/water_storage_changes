@@ -21,7 +21,7 @@ Evapotranspiration:
 
 Precipitations : 
 
-* P_CPC : observation based, monthly, Jan 2002 - Dec 2017, 0.5° x 0.5°, global (modelled over seas)
+* P_CPC ([PSL](https://www.psl.noaa.gov/data/gridded/data.cpc.globalprecip.html)): observation based, monthly, Jan 2002 - Dec 2017, 0.5° x 0.5°, global (modelled over seas)
 * P_CRU ([Climatic Research Unit](https://catalogue.ceda.ac.uk/uuid/89e1e34ec3554dc98594a5732622bce9)) : observation based, monthly, Jan 1901-Dec 2019 (restricted to Jan 1979 - Dec 2019), 0.5° x 0.5°, -60°x90°
 * P_ERA5-Land ([ECMWF](https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-land-monthly-means?tab=overview)) : monthly, Jan 1981 - Aug 2020, 0.1° x 0.1° (spatially averaged to 0.5°x0.5°), global on land
 * P_GLDAS21 : forcing data (Princeton), monthly, Jan 2000 - June 2020, 1° x 1°, on land
