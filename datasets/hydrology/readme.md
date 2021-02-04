@@ -57,6 +57,7 @@ Potential EvapoTranspiration :
 * PET_CRU ([Climatic Research Unit](https://catalogue.ceda.ac.uk/uuid/89e1e34ec3554dc98594a5732622bce9)) : observation based, monthly, Jan 1901-Dec 2019 (restricted to Jan 1979 - Dec 2019), 0.5° x 0.5°, -60°x90°
 * PET_GLEAM ([Global Land Evaporation Amsterdam Model](https://www.gleam.eu/)) : reanalysis, monthly, Jan 1980 - Dec 2018, 0.25° x 0.25° mapped to 0.5° x 0.5°, global on land
 * PET_SSEBop ([USGS](https://earlywarning.usgs.gov/fews/product/81)) : 
+* PET_PT_JPL ([download](http://josh.yosh.org/datamodels.htm), cite Fisher 2008) : 
 
 
 CLSM simulates shallow groundwater. Terrestrial Water Storage in CLSM = soil water + snow water equivalent + canopy water + groundwater
