@@ -30,7 +30,7 @@ Precipitations :
 * P_GPM ([NASA](https://disc.gsfc.nasa.gov/datasets/GPM_3IMERGM_06/summary?keywords=%22IMERG%20final%22)) : monthly, June 2000 - Aug 2020, 0.1° x 0.1°, global
 * P_MERRA2 ([link](https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2)) : , monthly, Jan 1980 - Sep 2020, 0.5° x 0.625°, on land
 * P_MSWEP : satellite, monthly, Jan 1979 - Oct 2017, 0.5° x 0.5°, global
-* P_TRMM ([GES](https://disc.gsfc.nasa.gov/datasets/TRMM_3B43_7/summary)) : , monthly, Jan 1998 - present, 0.25° x 0.25°, -50° x 50°
+* P_TRMM ([GES](https://disc.gsfc.nasa.gov/datasets/TRMM_3B43_7/summary)) : , monthly, Jan 1998 - present, 0.25° x 0.25°, -50° x 50° (relative error available)
 
 
 Runoff : 
