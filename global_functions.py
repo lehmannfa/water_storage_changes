@@ -28,10 +28,16 @@ class MidpointNormalize(Normalize):
         return np.ma.masked_array(np.interp(value, x, y), np.isnan(value))
 
 
-def define_cmap(hydro_var_name,hydro_basin,year,month):
+def define_cmap(hydro_var_name,values,percentile=False):
     ''' called in each basin, for each hydrological variable, at a given month'''
-    vmin=hydro_basin['{} {}-{}-15'.format(hydro_var_name,year,month)].min()
-    vmax=hydro_basin['{} {}-{}-15'.format(hydro_var_name,year,month)].max()
+    #vmin=hydro_basin['{} {}-{}-15'.format(hydro_var_name,year,month)].min()
+    values=values[np.where(~np.isnan(values))]
+    if percentile:
+        vmin=np.percentile(values,2)
+        vmax=np.percentile(values,98)
+    else:
+        vmin=np.min(values)
+        vmax=np.max(values)
 
     if hydro_var_name=='TWS':
         norm = MidpointNormalize(midpoint=0,vmin=vmin, vmax=vmax)
@@ -57,7 +63,7 @@ def define_cmap_perf(metric,discrete=True):
         else:
             cmap = cm.get_cmap('YlGn')
             norm = MidpointNormalize(midpoint=0, vmin=0,vmax=1)
-    if metric=='NSE_large':
+    elif metric=='NSE_large':
         if discrete:
             cmap=cm.YlGn
             bounds = [0.19,0.2,0.5,0.75,1]
@@ -65,7 +71,7 @@ def define_cmap_perf(metric,discrete=True):
         else:
             cmap = cm.get_cmap('YlGn')
             norm = MidpointNormalize(midpoint=0, vmin=0,vmax=1)
-    if metric=='PBIAS':
+    elif metric=='PBIAS':
         if discrete:
             bottom = cm.get_cmap('Blues', 128)
             top = cm.get_cmap('Oranges_r',128)
@@ -78,12 +84,15 @@ def define_cmap_perf(metric,discrete=True):
         else:
             norm = MidpointNormalize(midpoint=0)
             cmap='Spectral_r'
-    if metric=='corr':
+    elif metric=='corr':
         norm = MidpointNormalize(midpoint=0, vmin=-1,vmax=1)
         cmap=cc.m_diverging_isoluminant_cjm_75_c24
-    if metric=='corr_basins':
+    elif metric=='corr_basins':
         norm = MidpointNormalize(midpoint=0, vmin=-1,vmax=1)
         cmap='Spectral'
+    else:
+        norm = MidpointNormalize(midpoint=0)
+        cmap='viridis'
     return norm,cmap
 
 
@@ -129,7 +138,6 @@ def load_hydro_data(hydro_var_name,dataset_name,fill_value=-9999,path='../datase
     if version==2:
         year=[d[3:] for d in np.asarray(X.variables['time'])]
         month=[d[:2] for d in np.asarray(X.variables['time'])]
-
         db=pd.DataFrame({'year':np.asarray(year).astype(int),
                         'month':np.asarray(month).astype(int),
                         'day':15})
@@ -194,15 +202,13 @@ def hydrological_variables_grid(hydro_var,time_X,hydro_var_name,spatial_grid,fil
 
 def load_basins_data(approximate=True,path='../datasets/basins'):
     if approximate:
-        basins=geopandas.read_file("{}/basins_with_approx_climate_zones_and_runoff_stations.shp".format(path))
+        basins=geopandas.read_file("{}/basins_with_approx_climate_zones.shp".format(path))
     else:
-        basins=geopandas.read_file("{}/basins_with_climate_zones_and_runoff_stations.shp".format(path))
+        basins=geopandas.read_file("{}/basins_with_climate_zones.shp".format(path))
     basins.set_index("NAME",inplace=True)
-    basins.drop(['CATCH_ID', 'DB_ID', 'SORTING'],axis=1,inplace=True)
-    basins.columns=['RASTAREA', 'LATITUDE', 'MAIN_CLIMATE', 'CLIMATE_AREA_%',
-    'COLOR','NB_RUNOFF','geometry']
+    basins.drop(['CONTINENT','OCEAN','CLIMATE_AR','COLOR_HEX'],axis=1,inplace=True)
+    basins.columns=['RASTAREA', 'MAIN_CLIMATE','zone','geometry']
     basins.crs = 'epsg:4326'
-
     return basins
 
 
@@ -253,7 +259,7 @@ def my_fillna_temporal(hydro_basin,hydro_var_name,time_idx,method='cubic'):
     # cubic interpolation can be performed only on dates
     df=pd.DataFrame(hydro_basin[columns].values,columns=time_idx)
     try:
-        df=df.interpolate(axis=1,method='cubic')
+        df=df.interpolate(axis=1,method=method)
 
         # we change columns and index of df
         df=pd.DataFrame(df.values,columns=columns,index=hydro_basin.index)
@@ -312,6 +318,12 @@ def my_fillna_spatial(hydro_basin,hydro_var_name,time_idx,dataset_name,version=1
                 hydro_basin.loc[idx,columns]=new.flatten()
 
     missing_points=hydro_basin.loc[np.isnan(hydro_basin[columns]).sum(axis=1)>0]
+
+    # if there is only one point missing, we remove it from hydro_basin
+    if missing_points.shape[0]==1:
+            hydro_basin.drop(missing_points.index[0],inplace=True)
+            return hydro_basin,True
+
     return hydro_basin,(missing_points.shape[0]==0)
 
 
@@ -348,29 +360,32 @@ def compute_spatial_resolution(hydro_var_name,dataset_name,version=1,path='../da
 
 
 def area_square(lat,lat_res=0.5,long_res=0.5,a=6.378e6):
-    ''' gives the area in km^2 of a square af length spatial_res located at latitude lat'''
+    ''' gives the area in km^2 of a square of length spatial_res located at latitude lat'''
     radius=a*np.cos(lat*np.pi/180) # radius of the parallel supporting the square
     area=np.pi**2*a*radius/(4*90)**2 # area of a square of length 1°
     return area*lat_res*long_res/1e6
 
 
 def weighted_average(hydro_basin,hydro_var_name,time_idx,lat_res=0.5,long_res=0.5,a=6.378e6):
-    ''' compute the spatial average over a basin taking into account the Earth curvature '''
+    ''' compute the spatial average over a basin taking into account the Earth curvature
+    if there are missing values, then the total area is oversetimated compared to the area really covered by values'''
     area=area_square(hydro_basin['y'],lat_res=lat_res,long_res=long_res,a=a).values.reshape(hydro_basin.shape[0],1)
     total_area=np.sum(area)
     weighted_basin=hydro_basin[['{} {}'.format(hydro_var_name,d.date()) for d in time_idx]]*area
-    mean_basin=np.sum(weighted_basin,axis=0)/total_area
+    mean_basin=np.sum(weighted_basin,axis=0)/total_area # counts nans as zero
     return mean_basin
 
 
-def hydrological_variables_basin_filtered(hydro_basin,hydro_var_name,time_idx,dataset_name,a=6.378e6,version=1,path='../datasets/hydrology'):
+def hydrological_variables_basin_filtered(hydro_basin,hydro_var_name,time_idx,dataset_name,a=6.378e6,version=1,path='../datasets/hydrology',missing_threshold=5):
     ''' compute the 3 point derivative of TWS
     filters hydrological variables to match TWS derivation '''
 
-    # we check that there are no more missing values
-    nb_nan=hydro_basin.loc[:,['{} {}'.format(hydro_var_name,d.date()) for d in time_idx]].isna().sum().sum()
-    if nb_nan>0:
-        raise Exception('There are missing values in {}'.format(hydro_var_name))
+    # we check that the number of points with missing months does not exceed the threshold (in %)
+    missing_points=hydro_basin.loc[np.sum(np.isnan(hydro_basin[['{} {}'.format(hydro_var_name,d.date()) for d in time_idx]]),axis=1)>0].index
+    if 100*missing_points.shape[0]/hydro_basin.shape[0]>missing_threshold:
+        df=pd.Series(np.nan*np.ones(time_idx.shape[0]),index=time_idx)
+        df_filter=pd.Series(np.nan*np.ones(time_idx.shape[0]-2),index=time_idx[1:-1])
+        return df,df_filter
 
     (lat_res,long_res)=compute_spatial_resolution(hydro_var_name,dataset_name,version=version,path=path)
 
@@ -386,7 +401,7 @@ def hydrological_variables_basin_filtered(hydro_basin,hydro_var_name,time_idx,da
         hydro_mean_basin_filter=uncertainty_derivative(hydro_mean_basin)
 
     # otherwise, filtering to match the differential
-    elif hydro_var_name in ['P','ET','R','PET']:
+    elif hydro_var_name in ['P','ET','R','PET','LE']:
         hydro_mean_basin_filter=time_filter(hydro_mean_basin)
 
     else:
@@ -413,15 +428,99 @@ def compute_NSE(X,Y): # should be as close from 1 as possible
     Y is the reference variable (measured)'''
     if X.shape!=Y.shape:
         raise Exception("Shape of X {} is different from shape of Y {}".format(X.shape,Y.shape))
+    if np.sum(X.index==Y.index)!=X.shape[0]:
+        raise Exception('Indices of X and Y do not match')
     res=1-np.sum((X-Y)**2)/np.sum((Y-Y.mean())**2)
     return res
 
 
-def RMSE(X,Y):
+
+def compute_cyclic_NSE(X,Y): # should be as close from 1 as possible
+    ''' X is the estimated variable from the budget equation
+    Y is the reference variable (measured)'''
+    if X.shape!=Y.shape:
+        raise Exception("Shape of X {} is different from shape of Y {}".format(X.shape,Y.shape))
+    if np.sum(X.index==Y.index)!=X.shape[0]:
+        raise Exception('Indices of X and Y do not match')
+
+    Y_df=Y.to_frame()
+
+    # compute the mean value per month
+    Y_df['month']=Y_df.index.month
+    Y_month=Y_df.groupby('month').mean()
+    Y_month.columns=['mean month']
+
+    # associate each date to the mean monthly value
+    Y_df=Y_df.join(Y_month,on='month')
+
+    res=1-np.sum((X-Y)**2)/np.sum((Y-Y_df['mean month'])**2)
+    return res
+
+
+def compute_RMSE(X,Y,normalized=False):
     if X.shape!=Y.shape:
         raise Exception("Shape of X {} is different from shape of Y {}".format(X.shape,Y.shape))
 
-    return np.sqrt(np.sum((X-Y)**2)/X.shape[0])
+    RMSE=np.sqrt(np.sum((X-Y)**2)/X.shape[0])
+
+    if normalized:
+        q1=np.percentile(Y,25)
+        q3=np.percentile(Y,75)
+        return RMSE/(q3-q1)
+    else:
+        return RMSE
+
+
+
+
+## SEASONAL DECOMPOSITION
+def seasonal_Fourier_reconstruction(X,Y,P,nP,dP,linear=False):
+    if linear: # to be used by TWS where there can be a trend. Trend is suppressed by derivationin TWSC
+        # remove the linear trend
+        model = LinearRegression()
+        model.fit(X.reshape(X.shape[0],1), Y)
+        Ydetrend=Y-model.predict(X.reshape(X.shape[0],1))
+    else:
+        Ydetrend=Y
+
+    # constant term
+    a0=np.sum(Ydetrend[0:nP*int(P/dP)]*dP)/(P*nP)
+    if linear and np.abs(a0)>1e-8:
+        raise Exception("a0 should be 0, it is {:.2e}".format(a0))
+
+    # annual sine wave
+    a1=np.sum(Ydetrend[0:nP*int(P/dP)]*np.cos(2*np.pi*X[0:nP*int(P/dP)]/P)*dP)*(2/(P*nP))
+    b1=np.sum(Ydetrend[0:nP*int(P/dP)]*np.sin(2*np.pi*X[0:nP*int(P/dP)]/P)*dP)*(2/(P*nP))
+    A1=np.sqrt(a1**2+b1**2) # amplitude of the annual signal
+    phi1=np.arctan2(b1,a1) # phase of the annual signal
+
+    # semi-annual sine wave
+    a2=np.sum(Ydetrend[0:nP*int(P/dP)]*np.cos(4*np.pi*X[0:nP*int(P/dP)]/P)*dP)*(2/(P*nP))
+    b2=np.sum(Ydetrend[0:nP*int(P/dP)]*np.sin(4*np.pi*X[0:nP*int(P/dP)]/P)*dP)*(2/(P*nP))
+    A2=np.sqrt(a2**2+b2**2)
+    phi2=np.arctan2(b2,a2)
+
+    # sum all components: constant term + annual sine + semi-annual sine (+ linear trend)
+    if linear:
+        bias=model.intercept_
+        trend=model.coef_[0]
+        Yrecons=bias+trend*X+A1*np.cos(2*np.pi*X/P-phi1)+A2*np.cos(4*np.pi*X/P-phi2)
+        return bias,trend,Yrecons
+    else:
+        bias=a0
+        Yrecons=bias+A1*np.cos(2*np.pi*X/P-phi1)+A2*np.cos(4*np.pi*X/P-phi2)
+        return bias,Yrecons
+
+
+def deseasone(Y_filter,P=12,dP=1):
+    nP=Y_filter.shape[0]//P
+    X=np.arange(0,Y_filter.shape[0],dP)[:nP*P] # month indices
+    Y=Y_filter.iloc[:nP*P] # restrict to an integer number of periods of length P
+    bias,Yrecons=seasonal_Fourier_reconstruction(X,Y,P,nP,dP) # Yrecons is the seasonal component of the signal
+    return Y-Yrecons
+
+
+
 
 
 
@@ -445,7 +544,7 @@ def plot_water_budget(TWSC_filter,A_filter,time_idx,basin_name,data_P,data_ET,da
     plt.title("Water budget equation in {} \n P {}, ET {}, R {}, TWS {} \n NSE={:.2f} PBIAS={:.2f} correlation={:.2f}".format(basin_name,
                                         data_P,data_ET,data_R,data_TWS,NSE,PBIAS,corr))
     plt.xlabel("month")
-    plt.ylabel("mm")
+    plt.ylabel("mm/month")
     plt.xlim([time_idx[0],time_idx[-1]])
     plt.tight_layout()
 
