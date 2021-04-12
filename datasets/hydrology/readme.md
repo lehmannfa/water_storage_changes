@@ -16,7 +16,7 @@ Evapotranspiration:
 * ET_GLDAS20_VIC412 ([link](https://disc.gsfc.nasa.gov/datasets/GLDAS_VIC10_M_2.0/summary?keywords=GLDAS)): monthly, Jan 1948-Dec 2014 (restricted to Jan 1979 - Dec 2014), 1.0° x 1.0° (interpolated to 0.5°x0.5°), -60° x 90°, on land 
 * ET_MERRA2 ([link](https://disc.gsfc.nasa.gov/datasets/M2TMNXLND_5.12.4/summary?keywords=MERRA-2)) : , monthly, Jan 1980 - Sep 2020, 0.5° x 0.625°, on land
 * ET_MOD16 ([University of Montana](https://www.ntsg.umt.edu/project/modis/mod16.php)) : Penman-Monteith, monthly, Jan 2000 - Dec 2014, 0.5 ° x 0.5°, on land
-* ET_SEBBop ([USGS](https://earlywarning.usgs.gov/fews/product/460)) : , monthly, Jan 2003 - Sep 2020, 0.5° x 0.5°, -60° x 80° on land
+* ET_SEBBop ([USGS](https://earlywarning.usgs.gov/ssebop/modis/daily/626)) : , monthly, Jan 2003 - Sep 2020, 0.5° x 0.5°, -60° x 80° on land
 * ET_PT_JPL ([download](http://josh.yosh.org/datamodels.htm), cite Fisher 2008) : 
 
 Precipitations : 
